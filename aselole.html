@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Pemilihan Ketua Dewan</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background-color: #f4f4f4; }
+    .hidden { display: none; }
+    .container { background: white; padding: 20px; max-width: 500px; margin: auto; border-radius: 8px; }
+    input, select, button { display: block; width: 100%; padding: 10px; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <div class="container" id="login-section">
+    <h2>Login Pemilih</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="kode" placeholder="Kode Akses">
+    <button onclick="login()">Masuk</button>
+    <p id="login-msg" style="color:red;"></p>
+  </div>
+
+  <div class="container hidden" id="vote-section">
+    <h2>Form Pemilihan</h2>
+    <label>Pilih Ketua Dewan Putra:</label>
+    <select id="ketua-putra">
+      <option value="">-- Pilih --</option>
+      <option value="Ahmad">Ahmad</option>
+      <option value="Budi">Budi</option>
+    </select>
+
+    <label>Pilih Ketua Dewan Putri:</label>
+    <select id="ketua-putri">
+      <option value="">-- Pilih --</option>
+      <option value="Citra">Citra</option>
+      <option value="Dewi">Dewi</option>
+    </select>
+
+    <button onclick="submitVote()">Kirim Suara</button>
+    <p id="vote-msg" style="color:green;"></p>
+  </div>
+
+  <div class="container">
+    <h3>Admin?</h3>
+    <input type="password" id="admin-pass" placeholder="Password Admin">
+    <button onclick="loginAdmin()">Masuk Admin</button>
+  </div>
+
+  <div class="container hidden" id="admin-section">
+    <h2>Hasil Pemilihan</h2>
+    <p><strong>Ketua Putra:</strong></p>
+    <ul id="hasil-putra"></ul>
+    <p><strong>Ketua Putri:</strong></p>
+    <ul id="hasil-putri"></ul>
+  </div>
+
+  <script>
+    const pemilih = {
+      "1": "1",
+      "user2": "5678",
+      "user3": "abcd"
+    };
+
+    let sudahMemilih = {};
+    let suaraPutra = {};
+    let suaraPutri = {};
+
+    function login() {
+      const user = document.getElementById("username").value;
+      const kode = document.getElementById("kode").value;
+
+      if (pemilih[user] && pemilih[user] === kode) {
+        if (sudahMemilih[user]) {
+          document.getElementById("login-msg").innerText = "Anda sudah memilih!";
+        } else {
+          document.getElementById("login-section").classList.add("hidden");
+          document.getElementById("vote-section").classList.remove("hidden");
+          sessionStorage.setItem("user", user);
+        }
+      } else {
+        document.getElementById("login-msg").innerText = "Username atau kode salah!";
+      }
+    }
+
+    function submitVote() {
+      const user = sessionStorage.getItem("user");
+      const putra = document.getElementById("ketua-putra").value;
+      const putri = document.getElementById("ketua-putri").value;
+
+      if (!putra || !putri) {
+        document.getElementById("vote-msg").style.color = "red";
+        document.getElementById("vote-msg").innerText = "Pilih kedua ketua terlebih dahulu.";
+        return;
+      }
+
+      suaraPutra[putra] = (suaraPutra[putra] || 0) + 1;
+      suaraPutri[putri] = (suaraPutri[putri] || 0) + 1;
+      sudahMemilih[user] = true;
+
+      document.getElementById("vote-msg").innerText = "Terima kasih! Suara Anda telah dicatat.";
+      document.getElementById("vote-section").classList.add("hidden");
+    }
+
+    function loginAdmin() {
+      const pass = document.getElementById("admin-pass").value;
+      if (pass === "admin123") {
+        document.getElementById("admin-section").classList.remove("hidden");
+        tampilkanHasil();
+      } else {
+        alert("Password admin salah!");
+      }
+    }
+
+    function tampilkanHasil() {
+      const hasilPutra = document.getElementById("hasil-putra");
+      const hasilPutri = document.getElementById("hasil-putri");
+
+      hasilPutra.innerHTML = "";
+      hasilPutri.innerHTML = "";
+
+      for (const nama in suaraPutra) {
+        hasilPutra.innerHTML += `<li>${nama}: ${suaraPutra[nama]} suara</li>`;
+      }
+
+      for (const nama in suaraPutri) {
+        hasilPutri.innerHTML += `<li>${nama}: ${suaraPutri[nama]} suara</li>`;
+      }
+    }
+  </script>
+</body>
+</html>
